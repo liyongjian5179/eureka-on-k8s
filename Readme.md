@@ -36,7 +36,8 @@ helm delete helm-eureka --purge
 ```bash
 curl -X PUT "http://helm-eureka-2.helm-eureka.default.svc.cluster.local:8761/eureka/apps/HELM-EUREKA/helm-eureka:helm-eureka-1.helm-eureka.default.svc.cluster.local:8761/status?value=UP" -uadmin:admin
 ```
-然后查看页面是是否是有一个节点是 `DOWN` 的状态
+Then check if the page is in a state where there is a node that is `DOWN`
+
 ```bash
 curl http://admin:admin@helm-eureka-2.helm-eureka.default.svc.cluster.local:8761
 ...
@@ -65,7 +66,7 @@ replicaCount: 3
 ...
 ``` 
 
-### change ingress.hosts to yours domain
+### change ingress.hosts to your domain
 ```bash
 cat values.yaml
 ...
