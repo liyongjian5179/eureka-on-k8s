@@ -54,3 +54,29 @@ curl http://admin:admin@helm-eureka-2.helm-eureka.default.svc.cluster.local:8761
 </td>
 ...
 ```
+
+## Helm config  
+### change replicaCount to you want
+```bash
+cd helm-eureka
+cat values.yaml
+...
+replicaCount: 3
+...
+``` 
+
+### change ingress.hosts to yours domain
+```bash
+cat values.yaml
+...
+ingress:
+  enabled: true
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: lyj.com
+      paths: 
+        - /
+...
+```
