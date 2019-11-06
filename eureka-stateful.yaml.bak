@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: lyj-eureka
+  namespace: default
+  labels:
+    app.kubernetes.io/name: lyj-eureka
+    app.kubernetes.io/instance: lyj-eureka
+    app.kubernetes.io/managed-by: lyj-eureka
+spec:
+  serviceName: lyj-eureka
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lyj-eureka
+      app.kubernetes.io/instance: lyj-eureka
+  template:
+    metadata:
+      namespace: default
+      labels:
+        app.kubernetes.io/name: lyj-eureka
+        app.kubernetes.io/instance: lyj-eureka
+    spec:
+      terminationGracePeriodSeconds: 10
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: registry-vpc.cn-beijing.aliyuncs.com
+      containers:
+        - name: lyj-eureka
+          #image: "registry.cn-beijing.aliyuncs.com/liyongjian5179/eureka:test"
+          image: "registry.cn-beijing.aliyuncs.com/liyongjian5179/eureka:test-security"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8761
+              protocol: TCP
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              memory: 256Mi
+          env:
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE # 传入当前命名空间
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          - name: MY_IN_SERVICE_NAME # 因为pod 通过域名互相访问，需要使用headless 服务名称
+            value: lyj-eureka
+          - name: EUREKA_APPLICATION_NAME
+            value: lyj-eureka
+          - name: EUREKA_REPLICAS
+            value: "3"
+          - name: USERNAME
+            value: root
+          - name: PASSWORD
+            value: lyj
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lyj-eureka
+  namespace: default
+  labels:
+    app.kubernetes.io/name: lyj-eureka
+    #helm.sh/chart: {{ .Values.chart }}
+    app.kubernetes.io/instance: lyj-eureka
+    #app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: 8761
+      targetPort: 8761
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: lyj-eureka
+    app.kubernetes.io/instance: lyj-eureka
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: lyj-eureka
+  namespace: default
+  labels:
+    app.kubernetes.io/name: lyj-eureka
+    #helm.sh/chart: {{ .Values.chart }}
+    app.kubernetes.io/instance: lyj-eureka
+    #app.kubernetes.io/managed-by: {{ .Release.Service }}
+  annotations:
+spec:
+  rules:
+  #- host: eureka.cf57eaa4fd3624fc39ab5ed0955c6048a.cn-beijing.alicontainer.com
+  - host: lyj.com
+    http:
+      paths:
+      - backend:
+          serviceName: lyj-eureka
+          servicePort: 8761
+        path: /

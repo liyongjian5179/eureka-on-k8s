@@ -1,0 +1,34 @@
+server:
+  port: 8761
+spring:
+  application:
+    name: ${EUREKA_APPLICATION_NAME:eureka}
+  security:
+    basic:
+      enabled: true
+    user:
+      name: ${USERNAME:admin}
+      password: ${PASSWORD:admin}
+eureka:
+  environment: ${ENVIRONMENT:dev}
+  instance:
+    hostname: ${EUREKA_HOST_NAME:eureka}
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+    appname: ${spring.application.name}
+    #instance-id: ${spring.application.name}:${spring.application.instance_id:${server.port}}
+    instance-id: ${spring.application.name}:${EUREKA_HOST_NAME}:${server.port}
+  client:
+    registerWithEureka: ${BOOL_REGISTER:true} # 是否把服务中心本身当做eureka client 注册。默认为true
+    fetchRegistry: ${BOOL_FETCH:true} # 是否拉取 eureka server 的注册信息。 默认为true
+    healthcheck:
+      enable: true
+    registry-fetch-interval-seconds: 5
+    serviceUrl:
+      defaultZone: ${EUREKA_URL_LIST:http://eureka:8761/eureka/} # 指定服务中心 eureka server的地址
+    # security:
+    #   basic:
+    #     user: ${USERNAME:admin}
+    #     password: ${PASSWORD:admin}
+  server:
+    enable-self-preservation: ${SELF_PRESERVATION:true} # 是否开启自我保护。 默认为 true.
